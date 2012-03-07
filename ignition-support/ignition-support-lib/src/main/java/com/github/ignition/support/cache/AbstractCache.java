@@ -71,8 +71,10 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
 
     private String name;
     
-    private long expirationInMinutes;
-
+    private final long expirationInMinutes;
+    private final int initialCapacity;
+    private final int maxConcurrentThreads;
+    
     /**
      * Creates a new cache instance.
      * 
@@ -93,13 +95,26 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
 
         this.name = name;
         this.expirationInMinutes = expirationInMinutes;
-                
-        MapMaker mapMaker = new MapMaker();
+        this.initialCapacity = initialCapacity;
+        this.maxConcurrentThreads = maxConcurrentThreads;
+        
+        this.cache = createMap();
+    }
+    
+    public AbstractCache(int expirationInMinutes, MapMaker mapMaker){
+        this.expirationInMinutes = expirationInMinutes;
+        
+        this.cache = mapMaper.makeMap();
+    }
+
+
+    protected Map<KeyT, ValT> createMap(){
+    	MapMaker mapMaker = new MapMaker();
         mapMaker.initialCapacity(initialCapacity);
         mapMaker.expiration(expirationInMinutes * 60, TimeUnit.SECONDS);
         mapMaker.concurrencyLevel(maxConcurrentThreads);
         mapMaker.softValues();
-        this.cache = mapMaker.makeMap();
+        return mapMaker.makeMap();
     }
 
     /**
